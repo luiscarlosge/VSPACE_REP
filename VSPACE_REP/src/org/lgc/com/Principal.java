@@ -39,7 +39,7 @@ public class Principal {
 		        System.out.println("Directory " + listOfFiles[i].getName());
 		      }
 		    }*/
-			Properties prop = Principal.initializeProp("vspaceconfig.properties");
+	    Properties prop = Principal.initializeProp("vspaceconfig.properties");
 		   
 
 		String url = prop.getProperty("dsdsurl");
