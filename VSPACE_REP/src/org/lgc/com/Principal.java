@@ -4,7 +4,11 @@ import org.teiid.net.socket.SingleInstanceCommunicationException;
 import org.teiid.net.socket.SocketServerInstanceImpl;
 
 import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.ObjectInputStream;
 import java.sql.Connection;
@@ -13,6 +17,7 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.LinkedList;
+import java.util.Properties;
 
 import org.lgc.com.dao.Project;
 import org.lgc.com.dao.User;
@@ -23,8 +28,24 @@ import org.teiid.core.types.BlobImpl;
 public class Principal {
 
 	public static void main(String[] args) throws IOException, InterruptedException {
+		
+	/*	File folder = new File("/tmp");
+		File[] listOfFiles = folder.listFiles();
 
-		String url = "jdbc:teiid:VSPACE_REP@mm://10.11.17.99:31000;version=1";    
+		    for (int i = 0; i < listOfFiles.length; i++) {
+		      if (listOfFiles[i].isFile()) {
+		        System.out.println("File " + listOfFiles[i].getName());
+		      } else if (listOfFiles[i].isDirectory()) {
+		        System.out.println("Directory " + listOfFiles[i].getName());
+		      }
+		    }*/
+			Properties prop = Principal.initializeProp("vspaceconfig.properties");
+		   
+
+		String url = prop.getProperty("dsdsurl");
+		String user = prop.getProperty("dsdsuser");
+		String password = prop.getProperty("dsdspassword");
+		
 		Connection connection; 
 
 		try {
@@ -34,7 +55,7 @@ public class Principal {
 			e.printStackTrace();
 		} 
         try {
-			connection = DriverManager.getConnection(url, "dsdsadmin", "dsdsadmin");	
+			connection = DriverManager.getConnection(url, user, password);	
 			
 			
 			if (args[0].equals("users")){
@@ -88,6 +109,21 @@ public class Principal {
 	        for(int i=0;i<prjs.size();i++){       	
 	        	System.out.println(prjs.get(i).prj_name);        	
 	        }
+		
+	}
+	
+	public static Properties initializeProp(String path){
+		
+		Properties prop = new Properties();
+	    try {
+			InputStream inputStream = new FileInputStream(path);
+			prop.load(inputStream);
+		} catch (FileNotFoundException e) {
+			System.out.println("File not Found");
+		} catch (IOException e) {
+			System.out.println("File not Found");
+		}
+		return prop;
 		
 	}
 }
