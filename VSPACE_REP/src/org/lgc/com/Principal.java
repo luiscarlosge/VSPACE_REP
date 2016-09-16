@@ -1,30 +1,18 @@
 package org.lgc.com;
 
-import org.teiid.net.socket.SingleInstanceCommunicationException;
-import org.teiid.net.socket.SocketServerInstanceImpl;
-
-import java.io.BufferedReader;
-import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.io.ObjectInputStream;
 import java.sql.Connection;
 import java.sql.DriverManager;
-import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.sql.Statement;
 import java.util.LinkedList;
 import java.util.Properties;
-
 import org.lgc.com.dao.Project;
 import org.lgc.com.dao.User;
-import org.teiid.core.types.BlobImpl;
 
 
-@SuppressWarnings("unused")
 public class Principal {
 
 	public static void main(String[] args) throws IOException, InterruptedException {
@@ -48,16 +36,9 @@ public class Principal {
 		
 		Connection connection; 
 
-		try {
-			Class.forName("org.teiid.jdbc.TeiidDriver");
-		} catch (ClassNotFoundException e) {
-			System.out.println("Error Encontrando el Driver de Teiid");
-			e.printStackTrace();
-		} 
         try {
-			connection = DriverManager.getConnection(url, user, password);	
-			
-			
+			connection = Principal.initializeConnection(url, user, password);	
+				
 			if (args[0].equals("users")){
 				Principal.getvSpaceUsers(connection);
 				connection.close();
@@ -126,5 +107,23 @@ public class Principal {
 		return prop;
 		
 	}
+	
+	public static Connection initializeConnection(String url, String user, String password){
+		Connection connection = null;
+		
+		try {
+			Class.forName("org.teiid.jdbc.TeiidDriver");
+			connection = DriverManager.getConnection(url, user, password);
+		} catch (ClassNotFoundException e) {
+			System.out.println("Error al inicializar la Clase");
+			e.printStackTrace();
+		} catch (SQLException e) {
+			System.out.println("Error en la Conexion con DS Data Server");
+			e.printStackTrace();
+		}
+		
+		return connection;
+	}
+	
 }
 
