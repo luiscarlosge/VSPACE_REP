@@ -7,10 +7,12 @@ import java.io.InputStream;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
+import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.Properties;
 import org.lgc.com.dao.Project;
 import org.lgc.com.dao.User;
+import org.lgc.com.utl.OWBackupUtil;
 
 
 public class Principal {
@@ -33,6 +35,11 @@ public class Principal {
 		String url = prop.getProperty("dsdsurl");
 		String user = prop.getProperty("dsdsuser");
 		String password = prop.getProperty("dsdspassword");
+		ArrayList<String> instances = new ArrayList<String>();
+		instances.add(prop.getProperty("OWIN"));
+		instances.add(prop.getProperty("OWIN3"));
+		instances.add(prop.getProperty("OWIN4"));
+		instances.add(prop.getProperty("OWIN5"));
 		
 		Connection connection; 
 
@@ -47,6 +54,11 @@ public class Principal {
 				Principal.getvSpaceProjectsAll(connection);
 			}else if (args[0].equals("projects_db")){
 				Principal.getvSpaceDBProjects(connection);
+				
+			}else if (args[0].equals("backup_files")){
+				
+				Principal.checkBackupFiles(connection,instances);
+				
 			}else{
 				
 				System.out.println("Opcion no valida");
@@ -123,6 +135,17 @@ public class Principal {
 		}
 		
 		return connection;
+	}
+	
+	public static void checkBackupFiles(Connection connection, ArrayList<String> instances) throws SQLException{
+		
+		LinkedList<Project> projects = Project.getDBProjects(connection);
+		OWBackupUtil list = new OWBackupUtil(projects,instances);
+		ArrayList<String> backups = list.getFailedBackups();
+		for(String s: backups)
+			System.out.println(s);
+		
+		
 	}
 	
 }
