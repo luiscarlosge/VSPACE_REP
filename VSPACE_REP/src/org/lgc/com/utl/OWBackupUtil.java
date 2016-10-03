@@ -1,5 +1,6 @@
 package org.lgc.com.utl;
 import java.io.File;
+import java.math.BigInteger;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -20,6 +21,42 @@ public class OWBackupUtil {
 		this.owdb = owdb;
 		this.instances = instances;
 	}
+	
+	//Returns the amount of OW PRojects in DB
+	public int returnDBTotalProjects(){
+		return owdb.size();
+	}
+	
+	//Returns the amount of Backup Files generated in the last Diary Backup
+	public int returnDBTotalFiles(){
+		return this.getOWFilesBCK().size();
+	}
+	
+	//Returns the Size in GB of the Filepaths
+	public BigInteger[] returnFilePathSizes(){
+		
+		DateFormat dateFormat = new SimpleDateFormat("yyyy/MM/dd");
+		Date date = new Date(System.currentTimeMillis()-24*60*60*1000);		
+		dateFormat.format(date);
+		String today = dateFormat.format(date).toString().replaceAll("/", "");
+		BigInteger[] filepaths = new BigInteger[(instances.size())* 2];
+		
+		for(int i=0; i<instances.size();i++){
+			File folder = new File(instances.get(i)+"/"+today);
+			File[] listOfFiles = folder.listFiles();
+			BigInteger size = BigInteger.valueOf(0);
+			for (int j = 0; j < listOfFiles.length; j++)
+				size = size.add(BigInteger.valueOf(listOfFiles[j].length()));
+			
+			size= size.divide(BigInteger.valueOf(1073741824));
+
+			
+		    filepaths[i]=size;
+			
+		}
+		return filepaths;		
+	}
+	
 
 	//Method to Obtain The Generated Backups Files for Yesterday
     public  ArrayList<String> getOWFilesBCK(){

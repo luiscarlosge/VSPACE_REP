@@ -4,10 +4,14 @@ import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
+import java.math.BigInteger;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.LinkedList;
 import java.util.Properties;
 import org.lgc.com.dao.Project;
@@ -76,6 +80,7 @@ public class Principal {
 			System.out.println("users - Retorna todos los usuarios Openworks");
 			System.out.println("projects_all - Retorna todos los proyectos Openworks (IP y ALL_DATA)");
 			System.out.println("projects_db - Retorna solo los proyectos Openworks ALL_DATA");
+			System.out.println("backup_files - Informa el Estado del ultimo Backup diario");
 		}        
 	}
 	
@@ -139,12 +144,31 @@ public class Principal {
 	
 	public static void checkBackupFiles(Connection connection, ArrayList<String> instances) throws SQLException{
 		
+		DateFormat dateFormat = new SimpleDateFormat("yyyy/MM/dd");
+		Date date = new Date(System.currentTimeMillis()-24*60*60*1000);		
+		dateFormat.format(date);
+		
 		LinkedList<Project> projects = Project.getDBProjects(connection);
 		OWBackupUtil list = new OWBackupUtil(projects,instances);
-		ArrayList<String> backups = list.getFailedBackups();
-		for(String s: backups)
-			System.out.println(s);
+		System.out.println("************************************************");
+		System.out.println("***** Openworks Backup Report - "+dateFormat.format(date).toString()+" *****");
+		System.out.println("************************************************");
+		System.out.println("Total DB Projects = "+list.returnDBTotalProjects());
+		System.out.println("Total Backup Files = "+list.returnDBTotalFiles());
+		BigInteger[] sizes = list.returnFilePathSizes();
+		 
+		for(int i=0; i<instances.size();i++){
+			System.out.println("Path "+instances.get(i)+" Size = "+sizes[i]+"GB");
+		}
 		
+		ArrayList<String> backups = list.getFailedBackups();
+		if(backups.size()>0){
+			System.out.println("Failed Backups:");
+			for(String s: backups)
+				System.out.println(s);
+		}else{
+			System.out.println("All the Backups Files has been generated Successfully");
+		}
 		
 	}
 	
